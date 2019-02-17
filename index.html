@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="theme-color" content="#3F51B5">
+
+    <title>ROS Countdown</title>
+    <meta name="description" content="A website that lets you count down to any time.">
+
+    <link rel="shortcut icon" href="favicon.ico" />
+
+    <link rel="stylesheet" href="https://unpkg.com/material-components-web@0.44.0/dist/material-components-web.min.css">
+
+    <style>
+        :root {
+            --mdc-theme-primary: #3f51b5;
+            --mdc-theme-secondary: #f44336;
+            --mdc-theme-on-primary: #ffffff;
+            --mdc-theme-on-secondary: #ffffff;
+        }
+
+        :root body {
+            background-color: #fafafa;
+        }
+
+        :root body .ribbon {
+            top: 0;
+            z-index: -1;
+            background-color: #3f51b5;
+            width: 100%;
+            height: 10rem;
+            position: absolute;
+        }
+
+        :root body .main-content {
+            background-color: #ffffff;
+            border-radius: 4px;
+            margin: 20px;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        :root body .main-content .input {
+            width: 100%;
+        }
+
+        :root body .main-content .countdown {
+            display: none;
+        }
+
+        :root body .main-content .output--url .action {
+            position: fixed;
+            top: 4px;
+            z-index: 2;
+        }
+
+        :root body .main-content .output--url .action--copy {
+            right: 56px;
+        }
+
+        :root body .main-content .output--url .action--open {
+            right: 8px;
+        }
+
+        :root body .main-content .text-centre {
+            text-align: center;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+
+</head>
+
+<body>
+
+    <!-- All code licensed under the MIT License: https://richienb.mit-license.org -->
+    <div class="ribbon mdc-elevation--z4"></div>
+    <main class="main-content mdc-typography mdc-elevation--z8">
+        <h1 class="mdc-typography--headline2">ROS Countdown</h1>
+        <p class="mdc-typography--body1">A website that lets you count down to any time.</p>
+        <div class="setup">
+            <div class="input input--date-time mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                <input type="datetime-local" id="input--date-time" class="mdc-text-field__input" required>
+                <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                        <label for="input--date-time" class="mdc-floating-label mdc-floating-label--float-above">Date and Time</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                </div>
+            </div>
+
+            <br>
+            <br>
+            <div class="mdc-text-field mdc-text-field--outlined output--url input" data-mdc-auto-init="MDCTextField">
+                <button class="mdc-icon-button action action--copy" title="Copy to clipboard" aria-hidden="true" data-mdc-auto-init="MDCRipple" data-clipboard-target="#countdown-url-input">
+                    <svg class="mdc-icon-button__icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="none" d="M0 0h24v24H0V0z" />
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm-1 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V11l-6-6zM8 21V7h6v5h5v9H8z" />
+                    </svg>
+                </button>
+                <button class="mdc-icon-button action action--open" title="Open in new tab" aria-hidden="true" data-mdc-auto-init="MDCRipple">
+                    <svg class="mdc-icon-button__icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="none" d="M0 0h24v24H0V0z" />
+                        <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+                    </svg>
+                </button>
+
+                <input type="url" id="countdown-url-input" class="mdc-text-field__input" readonly>
+                <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                        <label for="countdown-url-input" class="mdc-floating-label">Countdown URL</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                </div>
+            </div>
+        </div>
+        <div class="countdown">
+            <p class="mdc-typography--headline2 text-centre">It will be <span class="countdown--target"></span> in</p>
+            <p class="mdc-typography--headline3 countdown--current text-centre"></p>
+        </div>
+    </main>
+    <div class="mdc-snackbar mdc-snackbar--leading action--copy-success" data-mdc-auto-init="MDCSnackbar">
+        <div class="mdc-snackbar__surface">
+            <div class="mdc-snackbar__label" role="status" aria-live="polite">
+                Copied URL to clipboard
+            </div>
+        </div>
+    </div>
+
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+    <script src="https://unpkg.com/material-components-web@0.44.0/dist/material-components-web.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
+
+    <script>
+        mdc.autoInit();
+
+        $.each($(".mdc-icon-button"), function(_, obj) {
+            obj.MDCRipple.unbounded = true;
+        });
+
+        moment.locale(window.navigator.userLanguage || window.navigator.language);
+
+        function handleChange() {
+            document.querySelector(".output--url").MDCTextField.value =
+                window.location.href + "#" +
+                moment(
+                    document.querySelector(".input--date-time").MDCTextField.value,
+                    "YYYY-MM-DDTHH:mm").
+            valueOf();
+        }
+
+        function getTime(timestamp) {
+            var duration = moment(timestamp) - moment().local();
+            var s = Math.floor(duration / 1000 % 60);
+            var m = Math.floor(duration / 1000 / 60 % 60);
+            var h = Math.floor(duration / (1000 * 60 * 60) % 24);
+            var d = Math.floor(duration / (1000 * 60 * 60 * 24));
+            if (s <= 0 && m <= 0 && h <= 0 && d <= 0) {
+                return "Now!";
+            }
+            return d + " days " + h + " hours " + m + " minutes and " + s + " seconds";
+        }
+        var now = new Date($.now());
+        var year = void 0;
+        var month = void 0;
+        var date = void 0;
+        var hours = void 0;
+        var minutes = void 0;
+        var formattedDateTime = void 0;
+
+        year = now.getFullYear();
+        month =
+            now.getMonth().toString().length === 1 ? "0" +
+            (now.getMonth() + 1).toString() :
+            now.getMonth() + 1;
+        date =
+            now.getDate().toString().length === 1 ? "0" +
+            now.getDate().toString() :
+            now.getDate();
+        hours =
+            now.getHours().toString().length === 1 ? "0" +
+            now.getHours().toString() :
+            now.getHours();
+        minutes =
+            now.getMinutes().toString().length === 1 ? "0" +
+            now.getMinutes().toString() :
+            now.getMinutes();
+
+        formattedDateTime = year + "-" + month + "-" + date + "T" + hours + ":" + minutes;
+
+        $("#input--date-time").val(formattedDateTime);
+
+        handleChange();
+
+        $("#input--date-time").on("change", function() {
+            handleChange();
+        });
+        if (window.location.hash) {
+            $(".setup").hide();
+            $(".countdown").show();
+            $(".countdown--current").html(
+                getTime(parseInt(window.location.hash.substring(1))));
+
+            $(".countdown--target").html(
+                moment(parseInt(window.location.hash.substring(1))).format("llll"));
+
+            setInterval(function() {
+                $(".countdown--current").html(
+                    getTime(parseInt(window.location.hash.substring(1))));
+
+            }, 1000);
+        }
+
+        $(".action--open").click(function() {
+            window.open($(".output--url").get(0).MDCTextField.value);
+        });
+
+        var copy = new ClipboardJS(".action--copy");
+        copy.on("success", function(e) {
+            $(".action--copy-success").
+            get(0).
+            MDCSnackbar.open();
+            e.clearSelection();
+        });
+    </script>
+
+</body>
+
+</html>
